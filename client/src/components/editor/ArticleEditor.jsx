@@ -3,7 +3,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import lowlight from 'lowlight';
+import { lowlight } from 'lowlight/lib/core';
 import Toolbar from './Toolbar';
 
 // load all highlight.js languages
