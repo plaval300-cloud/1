@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
   const { login, isAuthenticated } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -19,7 +20,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await login({ email, password });
-      // Navigation will be handled by the main App component based on isAuthenticated
+      navigate('/dashboard'); // Explicit navigation after successful login
     } catch (err) {
       setError(err.response?.data?.msg || 'Login failed. Please check your credentials.');
     }
