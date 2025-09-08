@@ -72,14 +72,19 @@ export const AuthProvider = ({ children }) => {
 
   // Login user
   const login = async (formData) => {
+    console.log('AuthContext: login function called with:', formData);
     try {
+      console.log('AuthContext: Making API call to /auth/login...');
       const res = await api.post('/auth/login', formData);
+      console.log('AuthContext: API call successful. Response data:', res.data);
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: res.data,
       });
+      console.log('AuthContext: Dispatched LOGIN_SUCCESS. Loading user...');
       loadUser();
     } catch (err) {
+      console.error('AuthContext: API call failed.', err);
       dispatch({ type: 'AUTH_ERROR' });
       // maybe re-throw to be caught in component
       throw err;
