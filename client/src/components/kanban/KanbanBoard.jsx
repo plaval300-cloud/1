@@ -15,9 +15,11 @@ import {
 } from '@dnd-kit/sortable';
 import KanbanColumn from './KanbanColumn';
 import api from '../../utils/api';
+import { useSocket } from '../../context/SocketContext';
 
 const KanbanBoard = ({ goalId }) => {
   const [tasks, setTasks] = useState([]);
+  const socket = useSocket();
   const [columns, setColumns] = useState({
     'To Do': [],
     'In Progress': [],
@@ -34,7 +36,24 @@ const KanbanBoard = ({ goalId }) => {
       }
     };
     fetchTasks();
-  }, [goalId]);
+
+    const room = `goal:${goalId}`;
+    socket.emit('join_room', room);
+
+    const handleTaskUpdate = (updatedTask) => {
+      setTasks((prevTasks) =>
+        prevTasks.map(t => t.task_id === updatedTask.task_id ? updatedTask : t)
+      );
+    };
+
+    socket.on('task_updated', handleTaskUpdate);
+
+    return () => {
+      socket.emit('leave_room', room);
+      socket.off('task_updated', handleTaskUpdate);
+    };
+
+  }, [goalId, socket]);
 
   useEffect(() => {
     // When tasks change, regroup them into columns

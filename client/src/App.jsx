@@ -10,7 +10,9 @@ import EditArticlePage from './pages/EditArticlePage';
 import ViewArticlePage from './pages/ViewArticlePage';
 import ProfilePage from './pages/ProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
+import FeedPage from './pages/FeedPage';
 import PrivateRoute from './components/routing/PrivateRoute';
+import NotificationsMenu from './components/layout/NotificationsMenu';
 import { AuthContext } from './context/AuthContext';
 import { AppBar, Toolbar, Typography, Button, Container, Avatar, Menu, MenuItem } from '@mui/material';
 
@@ -41,8 +43,10 @@ function App() {
             </RouterLink>
           </Typography>
           {isAuthenticated && user ? (
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Button color="inherit" component={RouterLink} to="/feed">Feed</Button>
               <Button color="inherit" component={RouterLink} to="/dashboard">Dashboard</Button>
+              <NotificationsMenu />
               <Button
                 size="large"
                 aria-label="account of current user"
@@ -86,6 +90,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/feed" element={<FeedPage />} />
             <Route path="/goal/:goalId" element={<GoalPage />} />
             <Route path="/goal/:goalId/kanban" element={<KanbanPage />} />
             <Route path="/goal/:goalId/notes" element={<NotesPage />} />

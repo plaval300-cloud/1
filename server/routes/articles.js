@@ -57,12 +57,22 @@ router.put('/:articleId', auth, upload.single('cover_image'), async (req, res) =
         const newStatus = status !== undefined ? status : currentArticle.status;
         const newCoverImageUrl = req.file ? `/uploads/${req.file.filename}` : currentArticle.cover_image_url;
 
-        const updatedArticle = await db.query(
+        const updatedArticleResult = await db.query(
             `UPDATE articles SET title = $1, slug = $2, content = $3, status = $4, cover_image_url = $5
              WHERE article_id = $6 RETURNING *`,
             [newTitle, newSlug, newContent, newStatus, newCoverImageUrl, articleId]
         );
-        res.json(updatedArticle.rows[0]);
+        const updatedArticle = updatedArticleResult.rows[0];
+
+        // If status changed from 'draft' to 'published', create an event
+        if (currentArticle.status === 'draft' && updatedArticle.status === 'published') {
+            await db.query(
+                "INSERT INTO events (user_id, action_type, subject_id) VALUES ($1, 'published_article', $2)",
+                [req.user.id, updatedArticle.article_id]
+            );
+        }
+
+        res.json(updatedArticle);
     } catch (err) {
         console.error(err.message);
         if (err.code === '23505') {
@@ -105,16 +115,29 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/articles/slug/:slug - Get a single published article by slug
-router.get('/slug/:slug', async (req, res) => {
+router.get('/slug/:slug', auth, async (req, res) => { // Using auth to check like status
     try {
-        const article = await db.query(
-            `SELECT a.*, u.username FROM articles a JOIN users u ON a.user_id = u.user_id
-             WHERE a.slug = $1 AND a.status = 'published'`, [req.params.slug]
-        );
+        const requestingUserId = req.user ? req.user.id : null;
+        const articleQuery = `
+            SELECT
+                a.*,
+                u.username,
+                (SELECT COUNT(*) FROM likes WHERE content_type = 'article' AND content_id = a.article_id) as like_count,
+                EXISTS(SELECT 1 FROM likes WHERE user_id = $1 AND content_type = 'article' AND content_id = a.article_id) as is_liked_by_user
+            FROM articles a
+            JOIN users u ON a.user_id = u.user_id
+            WHERE a.slug = $2 AND a.status = 'published'
+        `;
+        const article = await db.query(articleQuery, [requestingUserId, req.params.slug]);
+
         if (article.rows.length === 0) {
             return res.status(404).json({ msg: 'Article not found.' });
         }
-        res.json(article.rows[0]);
+
+        const articleData = article.rows[0];
+        articleData.like_count = parseInt(articleData.like_count, 10);
+
+        res.json(articleData);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

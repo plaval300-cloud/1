@@ -2,13 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import EditGoal from '../components/goals/EditGoal';
+import { TextField, Switch, FormControlLabel } from '@mui/material';
+
 
 const Dashboard = () => {
   const [goals, setGoals] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    is_public: true,
+    goal_type: 'personal',
+    start_date: '',
+    end_date: ''
   });
+  const [isChallenge, setIsChallenge] = useState(false);
   const [error, setError] = useState('');
   const [editingGoal, setEditingGoal] = useState(null);
 
@@ -25,20 +32,35 @@ const Dashboard = () => {
     getGoals();
   }, []);
 
-  const { title, description } = formData;
+  const { title, description, is_public, start_date, end_date } = formData;
 
-  const onChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const onChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value,
+    });
+  };
+
+  const handleChallengeSwitch = (e) => {
+    setIsChallenge(e.target.checked);
+    setFormData({
+      ...formData,
+      goal_type: e.target.checked ? 'challenge' : 'personal',
+    });
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await api.post('/goals', formData);
       setGoals([res.data, ...goals]);
-      setFormData({ title: '', description: '' });
+      // Reset form
+      setFormData({ title: '', description: '', is_public: true, goal_type: 'personal', start_date: '', end_date: '' });
+      setIsChallenge(false);
     } catch (err) {
       console.error(err);
-      setError('Failed to create goal.');
+      setError(err.response?.data?.msg || 'Failed to create goal.');
     }
   };
 
@@ -79,21 +101,55 @@ const Dashboard = () => {
         <>
           <h3>Create a New Goal</h3>
           <form onSubmit={onSubmit}>
-            <input
-              type="text"
+            <TextField
+              label="Goal Title"
               name="title"
               value={title}
               onChange={onChange}
-              placeholder="Goal Title"
+              fullWidth
               required
+              margin="normal"
             />
-            <textarea
+            <TextField
+              label="Goal Description"
               name="description"
               value={description}
               onChange={onChange}
-              placeholder="Goal Description"
+              fullWidth
+              multiline
+              rows={3}
+              margin="normal"
             />
-            <button type="submit">Create Goal</button>
+            <FormControlLabel
+              control={<Switch checked={is_public} onChange={onChange} name="is_public" />}
+              label="Public Goal"
+            />
+            <FormControlLabel
+              control={<Switch checked={isChallenge} onChange={handleChallengeSwitch} name="isChallenge" />}
+              label="Make it a Challenge"
+            />
+            {isChallenge && (
+              <>
+                <TextField
+                  label="Start Date"
+                  type="date"
+                  name="start_date"
+                  value={start_date}
+                  onChange={onChange}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ mr: 2 }}
+                />
+                <TextField
+                  label="End Date"
+                  type="date"
+                  name="end_date"
+                  value={end_date}
+                  onChange={onChange}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </>
+            )}
+            <Button type="submit" variant="contained" sx={{ display: 'block', mt: 2 }}>Create Goal</Button>
           </form>
         </>
       )}
