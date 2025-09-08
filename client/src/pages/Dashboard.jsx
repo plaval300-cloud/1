@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import EditGoal from '../components/goals/EditGoal';
-import { TextField, Switch, FormControlLabel } from '@mui/material';
+import { TextField, Switch, FormControlLabel, Button } from '@mui/material';
 
 
 const Dashboard = () => {
