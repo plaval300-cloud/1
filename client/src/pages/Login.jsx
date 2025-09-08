@@ -18,18 +18,12 @@ const Login = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login form submitted.');
     setError(''); // Clear previous errors
     try {
-      console.log('Attempting to call login context function...');
       await login({ email, password });
-      console.log('Login context function successful. Navigating to dashboard...');
       navigate('/dashboard'); // Explicit navigation after successful login
     } catch (err) {
-      console.error('Error in Login.jsx onSubmit:', err);
-      const errorMsg = err.response?.data?.msg || 'Login failed. Please check your credentials.';
-      setError(errorMsg);
-      console.log('Error message set to:', errorMsg);
+      setError(err.response?.data?.msg || 'Login failed. Please check your credentials.');
     }
   };
 
