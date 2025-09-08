@@ -63,6 +63,9 @@ const Dashboard = () => {
 
   return (
     <div>
+      <Link to="/create-article" style={{ float: 'right', padding: '10px', backgroundColor: 'blue', color: 'white', textDecoration: 'none' }}>
+        + New Article
+      </Link>
       <h2>Dashboard</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
 

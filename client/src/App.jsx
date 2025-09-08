@@ -4,6 +4,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import GoalPage from './pages/GoalPage';
+import KanbanPage from './pages/KanbanPage';
+import NotesPage from './pages/NotesPage';
+import EditArticlePage from './pages/EditArticlePage';
+import ViewArticlePage from './pages/ViewArticlePage';
 import PrivateRoute from './components/routing/PrivateRoute';
 import { AuthContext } from './context/AuthContext';
 
@@ -37,11 +41,16 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/article/:slug" element={<ViewArticlePage />} />
 
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/goal/:goalId" element={<GoalPage />} />
+            <Route path="/goal/:goalId/kanban" element={<KanbanPage />} />
+            <Route path="/goal/:goalId/notes" element={<NotesPage />} />
+            <Route path="/create-article" element={<EditArticlePage />} />
+            <Route path="/edit-article/:articleId" element={<EditArticlePage />} />
           </Route>
 
           {/* Redirect root path */}

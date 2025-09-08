@@ -9,7 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.0.8",
+    "@dnd-kit/sortable": "^7.0.2",
+    "@dnd-kit/utilities": "^3.2.1",
+    "@excalidraw/excalidraw": "^0.17.0",
+    "@tiptap/extension-code-block-lowlight": "^2.1.11",
+    "@tiptap/extension-image": "^2.1.11",
+    "@tiptap/react": "^2.1.11",
+    "@tiptap/starter-kit": "^2.1.11",
     "axios": "^1.4.0",
+    "lowlight": "^2.9.0",
+    "mermaid": "^10.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.10.0"

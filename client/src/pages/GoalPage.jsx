@@ -73,6 +73,10 @@ const GoalPage = () => {
   return (
     <div>
       <Link to="/dashboard">Back to Dashboard</Link>
+      <br />
+      <Link to={`/goal/${goalId}/kanban`}>View on Kanban Board</Link>
+      {' | '}
+      <Link to={`/goal/${goalId}/notes`}>View Notes</Link>
       <h2>{goal.title}</h2>
       <p>{goal.description}</p>
 

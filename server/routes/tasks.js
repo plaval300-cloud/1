@@ -52,13 +52,13 @@ const taskRouter = express.Router();
 
 // PUT /api/tasks/:taskId - Update a task
 taskRouter.put('/:taskId', auth, async (req, res) => {
-    const { description, is_completed } = req.body;
+    const { description, is_completed, status } = req.body;
     const { taskId } = req.params;
 
     try {
-        // First, verify the task exists and belongs to the user
+        // First, verify the task exists and belongs to the user, and get its current state
         const taskResult = await db.query(
-            `SELECT t.task_id FROM tasks t JOIN goals g ON t.goal_id = g.goal_id
+            `SELECT t.* FROM tasks t JOIN goals g ON t.goal_id = g.goal_id
              WHERE t.task_id = $1 AND g.user_id = $2`,
             [taskId, req.user.id]
         );
@@ -67,9 +67,16 @@ taskRouter.put('/:taskId', auth, async (req, res) => {
             return res.status(404).json({ msg: 'Task not found or user not authorized.' });
         }
 
+        const currentTask = taskResult.rows[0];
+
+        // Prepare new values, using old ones as fallback
+        const newDescription = description !== undefined ? description : currentTask.description;
+        const newCompleted = is_completed !== undefined ? is_completed : currentTask.is_completed;
+        const newStatus = status !== undefined ? status : currentTask.status;
+
         const updatedTask = await db.query(
-            'UPDATE tasks SET description = $1, is_completed = $2 WHERE task_id = $3 RETURNING *',
-            [description, is_completed, taskId]
+            'UPDATE tasks SET description = $1, is_completed = $2, status = $3 WHERE task_id = $4 RETURNING *',
+            [newDescription, newCompleted, newStatus, taskId]
         );
 
         res.json(updatedTask.rows[0]);
