@@ -25,6 +25,7 @@ app.use('/api/goals/:goalId/notes', noteRoutes.nested);
 app.use('/api/notes', noteRoutes.direct);
 
 app.use('/api/articles', require('./routes/articles'));
+app.use('/api/profile', require('./routes/profile'));
 
 
 app.get('/', (req, res) => {

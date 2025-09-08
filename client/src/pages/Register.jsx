@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { Button, TextField, Container, Typography, Box, Alert } from '@mui/material';
 
 const Register = () => {
   const { register, isAuthenticated } = useContext(AuthContext);
@@ -19,61 +20,81 @@ const Register = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       await register({ username, email, password });
-      // After successful registration, AuthContext will set isAuthenticated to true
-      // and the user will be redirected.
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.msg || 'Registration failed.');
     }
   };
 
-  // If user is already authenticated, redirect to dashboard
   if (isAuthenticated) {
     return <Navigate to="/dashboard" />;
   }
 
 
   return (
-    <div>
-      <h2>Register</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={onSubmit}>
-        <div>
-          <input
-            type="text"
-            placeholder="Username"
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Typography component="h1" variant="h5">
+          Sign up
+        </Typography>
+        <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 3 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="username"
+            label="Username"
             name="username"
+            autoComplete="username"
+            autoFocus
             value={username}
             onChange={onChange}
-            required
           />
-        </div>
-        <div>
-          <input
-            type="email"
-            placeholder="Email Address"
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
             name="email"
+            autoComplete="email"
             value={email}
             onChange={onChange}
-            required
           />
-        </div>
-        <div>
-          <input
-            type="password"
-            placeholder="Password"
+          <TextField
+            margin="normal"
+            required
+            fullWidth
             name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="new-password"
             value={password}
             onChange={onChange}
-            minLength="6"
-            required
           />
-        </div>
-        <input type="submit" value="Register" />
-      </form>
-    </div>
+          {error && <Alert severity="error" sx={{ width: '100%', mt: 2 }}>{error}</Alert>}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Sign Up
+          </Button>
+        </Box>
+      </Box>
+    </Container>
   );
 };
 

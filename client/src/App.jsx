@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Routes, Route, Link, Navigate } from 'react-router-dom';
+import { Routes, Route, Link as RouterLink, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -8,40 +8,80 @@ import KanbanPage from './pages/KanbanPage';
 import NotesPage from './pages/NotesPage';
 import EditArticlePage from './pages/EditArticlePage';
 import ViewArticlePage from './pages/ViewArticlePage';
+import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage';
 import PrivateRoute from './components/routing/PrivateRoute';
 import { AuthContext } from './context/AuthContext';
+import { AppBar, Toolbar, Typography, Button, Container, Avatar, Menu, MenuItem } from '@mui/material';
 
 function App() {
   const { isAuthenticated, user, logout, loadUser } = useContext(AuthContext);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
 
   useEffect(() => {
     loadUser();
   }, []);
 
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <div>
-      <header>
-        <h1>Project Goal Digger</h1>
-        { user && <h4>Welcome, {user.username}!</h4> }
-        <nav>
-          {isAuthenticated ? (
-            <>
-              <Link to="/dashboard">Dashboard</Link> |{' '}
-              <button onClick={logout}>Logout</button>
-            </>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+              Goal Digger
+            </RouterLink>
+          </Typography>
+          {isAuthenticated && user ? (
+            <div>
+              <Button color="inherit" component={RouterLink} to="/dashboard">Dashboard</Button>
+              <Button
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"
+                startIcon={<Avatar src={user.avatar_url} sx={{ width: 32, height: 32 }} />}
+              >
+                {user.username}
+              </Button>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                keepMounted
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                open={open}
+                onClose={handleClose}
+              >
+                <MenuItem component={RouterLink} to={`/profile/user/${user.user_id}`} onClick={handleClose}>Profile</MenuItem>
+                <MenuItem component={RouterLink} to="/profile/edit" onClick={handleClose}>Edit Profile</MenuItem>
+                <MenuItem onClick={() => { handleClose(); logout(); }}>Logout</MenuItem>
+              </Menu>
+            </div>
           ) : (
             <>
-              <Link to="/login">Login</Link> |{' '}
-              <Link to="/register">Register</Link>
+              <Button color="inherit" component={RouterLink} to="/login">Login</Button>
+              <Button color="inherit" component={RouterLink} to="/register">Register</Button>
             </>
           )}
-        </nav>
-      </header>
-      <main>
+        </Toolbar>
+      </AppBar>
+      <Container component="main" sx={{ mt: 4, mb: 4 }}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/article/:slug" element={<ViewArticlePage />} />
+          <Route path="/profile/user/:userId" element={<ProfilePage />} />
 
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
@@ -51,6 +91,7 @@ function App() {
             <Route path="/goal/:goalId/notes" element={<NotesPage />} />
             <Route path="/create-article" element={<EditArticlePage />} />
             <Route path="/edit-article/:articleId" element={<EditArticlePage />} />
+            <Route path="/profile/edit" element={<EditProfilePage />} />
           </Route>
 
           {/* Redirect root path */}
